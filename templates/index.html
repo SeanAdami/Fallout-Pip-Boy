@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then((registration) => {
+                        console.log('Service Worker registered:', registration);
+                    })
+                    .catch((error) => {
+                        console.error('Service Worker registration failed:', error);
+                    });
+            });
+        }
+    </script>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fallout 4 Pip Boy</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    
+    <style>
+        body {
+            font-family: 'Fixedsys', monospace; /* Change font family to Fixedsys */
+            margin: 0;
+            padding: 0;
+            overflow: auto; /* Allow scrolling */
+            background: #111;
+            color: aqua; /* Change text color to aqua blue */
+        }
+
+        .pip-boy {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 5px solid #b1b1b1;
+            border-radius: 20px;
+            overflow: hidden;
+            background: #000;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+
+        .screen {
+            position: relative;
+            width: 550px;
+            min-height: 325px; /* Minimum height to enable scrolling */
+            overflow: auto; /* Enable scrolling */
+            background: #000;
+        }
+
+        .header {
+            background: #222;
+            padding: 10px;
+            color: aqua; /* Change text color to aqua blue */
+            text-align: center;
+            border-bottom: 2px solid #444;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .header p {
+            margin: 0;
+            font-size: 14px;
+        }
+
+        .section {
+            display: none;
+            padding: 20px;
+        }
+
+        .map-content {
+            height: 100%;
+        }
+
+        #map {
+            width: 100%;
+            height: 300px;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            background: #000;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            color: #fff;
+            background: #333;
+            border: 1px solid #444;
+            border-radius: 5px 5px 0 0;
+        }
+
+        .tab.active {
+            background: #fff;
+            color: #000;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 20px;
+        }
+
+        li strong {
+            color: aqua; /* Change text color to aqua blue */
+        }
+
+        .player-marker {
+            width: 30px;
+            height: 30px;
+            background: url('path/to/fallout4_marker.png') no-repeat;
+            background-size: contain;
+        }
+        
+        /* Animation for quests */
+        .quest-animation {
+            animation: pulse 1s infinite alternate;
+        }
+
+        @keyframes pulse {
+            from {
+                transform: scale(1);
+            }
+            to {
+                transform: scale(1.1);
+            }
+        }
+
+        /* Styling for create button */
+        .create-button {
+            padding: 5px 10px;
+            background-color: #333;
+            color: aqua;
+            border: 1px solid #444;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .create-button:hover {
+            background-color: #444;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="pip-boy">
+        <div class="screen">
+            <div class="header">
+                <h1>Fallout 4 Pip Boy</h1>
+                <p id="current-time">{{ current_time }}</p>
+            </div>
+
+            <div class="stats-section section">
+                <h2 class="section-title">STATS</h2>
+                <!-- Add Stats-related content here -->
+            </div>
+
+            <div class="inventory-section section">
+                <h2 class="section-title">INV</h2>
+                <ul>
+                    <li><strong>10mm Pistol</strong></li>
+                    <li><strong>Hunting Rifle</strong></li>
+                    <li><strong>Assault Rifle</strong></li>
+                    <!-- Add more items here -->
+                    <!-- Total of 20 items -->
+                </ul>
+                <h3>Add New Item</h3>
+                <input type="text" id="new-item" placeholder="Enter item name">
+                <button class="create-button" onclick="addItem()">Create</button>
+            </div>
+
+            <div class="data-section section">
+                <h2 class="section-title">DATA</h2>
+                <!-- Add Data-related content here -->
+            </div>
+
+            <div class="map-section section">
+                <h2 class="section-title">MAP</h2>
+                <div class="map-content">
+                    <!-- Add Map-related content here -->
+                    <div id="map"></div>
+                </div>
+            </div>
+
+            <div class="radio-section section">
+                <h2 class="section-title">RADIO</h2>
+                <!-- Add Radio-related content here -->
+            </div>
+
+            <div class="quests-section section">
+                <h2 class="section-title">QUESTS</h2>
+                <ul id="quest-list">
+                    <!-- Quests will be added dynamically here -->
+                </ul>
+                <h3 class="section-title">Create New Quest</h3>
+                <input type="text" id="new-quest" placeholder="Enter quest name">
+                <button class="create-button" onclick="addQuest()">Create</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="tabs">
+        <div class="tab active" onclick="showSection('stats-section')">STATS</div>
+        <div class="tab" onclick="showSection('inventory-section')">INV</div>
+        <div class="tab" onclick="showSection('data-section')">DATA</div>
+        <div class="tab" onclick="showSection('map-section')">MAP</div>
+        <div class="tab" onclick="showSection('radio-section')">RADIO</div>
+        <div class="tab" onclick="showSection('quests-section')">QUESTS</div>
+    </div>
+
+    <script>
+        // Function to update current time
+        function updateTime() {
+            const timeElement = document.getElementById('current-time');
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const seconds = now.getSeconds().toString().padStart(2, '0');
+
+            const timeString = `${hours}:${minutes}:${seconds}`;
+            timeElement.textContent = timeString;
+        }
+
+        // Call updateTime every second
+        setInterval(updateTime, 1000);
+
+        // Function to add new items to inventory
+        function addItem() {
+            const input = document.getElementById('new-item');
+            const itemName = input.value.trim();
+            if (itemName) {
+                const inventoryList = document.querySelector('.inventory-section ul');
+                const newItem = document.createElement('li');
+                newItem.innerHTML = `<strong>${itemName}</strong>`;
+                inventoryList.appendChild(newItem);
+                input.value = ''; // Clear input field after adding item
+            }
+        }
+
+        // Function to add new quests
+        function addQuest() {
+            const input = document.getElementById('new-quest');
+            const questName = input.value.trim();
+            if (questName) {
+                const questList = document.getElementById('quest-list');
+                const newQuest = document.createElement('li');
+                newQuest.innerHTML = `<strong>${questName}</strong>`;
+                questList.appendChild(newQuest);
+                input.value = ''; // Clear input field after adding quest
+            }
+        }
+        
+        // Function to show/hide sections
+        function showSection(sectionId) {
+            const allSections = document.querySelectorAll('.section');
+            allSections.forEach(section => {
+                section.style.display = 'none';
+            });
+            const selectedSection = document.querySelector(`.${sectionId}`);
+            if (selectedSection) {
+                selectedSection.style.display = 'block';
+            }
+        }
+    </script>
+
+    <!-- Add your map script here -->
+
+</body>
+
+</html>

@@ -1,0 +1,127 @@
+added.body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.pip-boy {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: 5px solid #fff;
+    border-radius: 20px;
+    overflow: hidden;
+    background: #000;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+    width: 550px; /* Adjust the width */
+    height: 500px; /* Adjust the height */
+}
+
+li strong {
+    color: #00ff00; /* Green font color */
+}
+
+
+.status {
+    display: inline-block;
+    margin-right: 10px;
+}
+
+.label {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.value {
+    font-size: 14px;
+}
+
+.datetime {
+    font-size: 14px;
+}
+
+.screen {
+    position: relative;
+    width: 100%; /* Adjust the width */
+    height: 100%; /* Adjust the height */
+    overflow: hidden;
+    background: #000;
+}
+
+.text {
+    font-size: 18px;
+    line-height: 1.5;
+}
+
+.tabs {
+    display: flex;
+    justify-content: space-around;
+    background-color: #222;
+    padding: 10px;
+    border-top: 2px solid #00ff00;
+}
+
+.tab {
+    cursor: pointer;
+    padding: 5px;
+}
+
+.tab.active {
+    border-bottom: 2px solid #00ff00;
+}
+
+/* ... (previous CSS code) ... */
+
+.datetime {
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.location {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+/* ... (remaining CSS code) ... */
+/* ... (previous CSS code) ... */
+
+.section {
+    display: none;
+    margin-top: 10px;
+}
+
+/* ... (remaining CSS code) ... */
+
+/* ... (previous CSS code) ... */
+
+.text {
+    font-size: 18px;
+    line-height: 1.5;
+    text-align: center;
+}
+
+.section {
+    display: none;
+    margin-top: 10px;
+    text-align: center;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    margin-top: 20px;
+    animation: fadeIn 1s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* ... (remaining CSS code) ... */
